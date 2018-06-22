@@ -22,7 +22,7 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 # or to one or all of the masters defined in the inventory if no load
 # balancer is present.
 openshift_master_cluster_method=native
-openshift_master_cluster_hostname=oso-master.mpti.co.id
+openshift_master_cluster_hostname=mst-etcd0.mpti.co.id
 openshift_master_cluster_public_hostname=cloud.mpti.co.id
 openshift_master_named_certificates=[{"certfile": "/root/mpt-ssl/117296541.crt", "keyfile": "/root/mpt-ssl/MPT2018.key", "names": ["cloud.mpti.co.id"], "cafile": "/root/mpt-ssl/mpti2018.ca-bundle"}]
 openshift_public_hostname=cloud.mpti.co.id
@@ -65,27 +65,29 @@ openshift_hosted_registry_storage_volume_size=10Gi
 
 # host group for masters
 [masters]
-oso-master.mpti.co.id
+mst-etcd0.mpti.co.id
 
 # host group for etcd
 [etcd]
-oso-master.mpti.co.id
+mst-etcd0.mpti.co.id
 
 # host group for nodes, includes region info
 [nodes]
-oso-master.mpti.co.id openshift_node_labels="{'region': 'master'}"
-oso-infra.mpti.co.id openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_schedulable=True
-oso-n0.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
-oso-n1.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
-oso-n2.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
+mst-etcd0.mpti.co.id openshift_node_labels="{'region': 'master'}"
+mst-etcd1.mpti.co.id openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_schedulable=True
+mst-etcd2.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
+node-0.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
+node-1.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
+node-2.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
 
 [glusterfs]
-oso-n0.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
-oso-n1.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
-oso-n2.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
+mst-etcd2.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
+node-0.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
+node-1.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
+node-2.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
 
 [nfs]
-oso-master.mpti.co.id
+mst-etcd0.mpti.co.id
 
 #[lb]
 #oso-lb.mpti.co.id
