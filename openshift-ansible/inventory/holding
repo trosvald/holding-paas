@@ -1,0 +1,91 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+glusterfs
+nfs
+#lb
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+ansible_ssh_user=root
+openshift_deployment_type=origin
+openshift_release=v3.9
+openshift_storage_glusterfs_timeout=600
+# Uncomment the following to enable htpasswd authentication; defaults to
+# DenyAllPasswordIdentityProvider.
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/htpasswd'}]
+
+# Native high availbility cluster method with optional load balancer.
+# If no lb group is defined installer assumes that a load balancer has
+# been preconfigured. For installation the value of
+# openshift_master_cluster_hostname must resolve to the load balancer
+# or to one or all of the masters defined in the inventory if no load
+# balancer is present.
+openshift_master_cluster_method=native
+openshift_master_cluster_hostname=oso-master.mpti.co.id
+openshift_master_cluster_public_hostname=cloud.mpti.co.id
+openshift_master_named_certificates=[{"certfile": "/root/mpt-ssl/117296541.crt", "keyfile": "/root/mpt-ssl/MPT2018.key", "names": ["cloud.mpti.co.id"], "cafile": "/root/mpt-ssl/mpti2018.ca-bundle"}]
+openshift_public_hostname=cloud.mpti.co.id
+openshift_master_api_port=8443
+openshift_master_console_port=8443
+openshift_docker_options='--selinux-enabled --insecure-registry 172.30.0.0/16'
+openshift_router_selector='region=infra'
+openshift_registry_selector='region=infra'
+
+# other config options
+openshift_master_default_subdomain=cloudapps.mpti.co.id
+os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
+openshift_enable_service_catalog=false
+# enable ntp on masters to ensure proper failover
+openshift_clock_enabled=true
+openshift_enable_unsupported_configurations=True
+# for ours, no need for the minimum cluster requirements.. we're at home...
+openshift_disable_check=memory_availability,disk_availability,docker_storage
+#template_service_broker_install=false
+
+# Ansible service broker
+openshift_hosted_etcd_storage_kind=nfs
+openshift_hosted_etcd_storage_nfs_options="*(rw,root_squash,sync,no_wdelay)"
+openshift_hosted_etcd_storage_nfs_directory=/opt/osev3-etcd 
+openshift_hosted_etcd_storage_volume_name=etcd-vol2 
+openshift_hosted_etcd_storage_access_modes=["ReadWriteOnce"]
+openshift_hosted_etcd_storage_volume_size=5G
+openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
+ansible_service_broker_local_registry_whitelist=['.*-apb$']
+template_service_broker_selector={"region": "infra"}
+ansible_service_broker_image_prefix=registry.access.redhat.com/openshift3/ose- 
+ansible_service_broker_registry_url=registry.access.redhat.com
+# Registry Storage NFS
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_nfs_directory=/exports
+openshift_hosted_registry_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_registry_storage_volume_name=registry
+openshift_hosted_registry_storage_volume_size=10Gi
+
+# host group for masters
+[masters]
+oso-master.mpti.co.id
+
+# host group for etcd
+[etcd]
+oso-master.mpti.co.id
+
+# host group for nodes, includes region info
+[nodes]
+oso-master.mpti.co.id openshift_node_labels="{'region': 'master'}"
+oso-infra.mpti.co.id openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_schedulable=True
+oso-n0.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
+oso-n1.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
+oso-n2.mpti.co.id openshift_node_labels="{'region': 'node', 'zone': 'holding'}" openshift_schedulable=True
+
+[glusterfs]
+oso-n0.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
+oso-n1.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
+oso-n2.mpti.co.id glusterfs_devices='[ "/dev/sdb" ]'
+
+[nfs]
+oso-master.mpti.co.id
+
+#[lb]
+#oso-lb.mpti.co.id
